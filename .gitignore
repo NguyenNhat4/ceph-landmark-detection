@@ -1,3 +1,44 @@
+# Data
 data/
-venv/
+*.csv
+*.json
 
+# Virtual environments
+venv/
+env/
+.env
+
+# Model weights & outputs
+*.pth
+*.pt
+*.onnx
+checkpoints/
+runs/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
