@@ -1,6 +1,7 @@
 # PyTorch ecosystem - Install với lệnh riêng (xem hướng dẫn dưới)
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-
+# Or run this command if you want to install the latest version of PyTorch
+# pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu128
 # Computer Vision & Data Processing
 opencv-python>=4.8.0
 numpy>=1.24.0
