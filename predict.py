@@ -185,7 +185,7 @@ def save_predictions_json(landmarks, save_path='prediction.json'):
 def main():
     parser = argparse.ArgumentParser(description='Predict cephalometric landmarks')
     parser.add_argument('--image', type=str, required=True, help='Path to input image')
-    parser.add_argument('--model', type=str, default='best_model_50.pth', help='Path to model checkpoint')
+    parser.add_argument('--model', type=str, default='best_model.pth', help='Path to model checkpoint')
     parser.add_argument('--anno', type=str, default=None, help='Path to ground truth annotation (optional)')
     parser.add_argument('--output', type=str, default='prediction.png', help='Path to save visualization')
     parser.add_argument('--device', type=str, default='cuda', help='Device to use (cuda/cpu)')

@@ -71,7 +71,7 @@ def validate(model, loader, criterion, device):
 
 def main():
     # Config
-    DATA_DIR = './data/subset_50'
+    DATA_DIR = './data'
     BATCH_SIZE = 4
     EPOCHS = 50
     LR = 1e-3
@@ -124,7 +124,7 @@ def main():
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'val_mre': val_mre,
-            }, 'best_model_50.pth')
+            }, 'best_model.pth')
             print(f"✓ Saved best model (MRE: {best_mre:.2f}mm)")
 
     print(f"\n🎉 Training completed! Best MRE: {best_mre:.2f}mm")
