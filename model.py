@@ -3,7 +3,7 @@ import torch.nn as nn
 import timm
 
 class LandmarkModel(nn.Module):
-    def __init__(self, num_landmarks=29, backbone='efficientnet_b0'):
+    def __init__(self, num_landmarks=29, backbone='efficientnet_b3'):
         super().__init__()
         # Sử dụng pretrained backbone
         self.backbone = timm.create_model(backbone, pretrained=True, num_classes=0)

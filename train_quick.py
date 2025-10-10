@@ -92,7 +92,7 @@ def main():
     print(f"Val samples: {len(val_dataset)}")
 
     # Model
-    model = LandmarkModel(num_landmarks=29, backbone='efficientnet_b0')
+    model = LandmarkModel(num_landmarks=29, backbone='efficientnet_b3')
     model = model.to(DEVICE)
 
     # Loss & Optimizer
