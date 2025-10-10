@@ -2,13 +2,14 @@
 data/
 *.csv
 *.json
+docs/
+.claude/
 
 # Virtual environments
 venv/
 env/
 .env
-
-# Model weights & outputs
+s# Model weights & outputs
 *.pth
 *.pt
 *.onnx
