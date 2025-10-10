@@ -15,7 +15,7 @@ LANDMARK_NAMES = [
 
 def load_model(model_path, device='cuda'):
     """Load trained model"""
-    model = LandmarkModel(num_landmarks=29, backbone='efficientnet_b0')
+    model = LandmarkModel(num_landmarks=29, backbone='efficientnet_b3')
 
     checkpoint = torch.load(model_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])

@@ -32,54 +32,41 @@ from utils import (
     print_per_landmark_errors
 )
 
-
 class Config:
-    """Training Configuration - Optimized for RTX 5060 Ti (16GB)"""
-
     # Data
-    DATA_DIR = './data'
-    IMG_SIZE = 1024  # Can try 1024 if you want higher accuracy
-
-    # Model
-    BACKBONE = 'efficientnet_b3'  # b3 is good balance (12M params)
-    # Try 'efficientnet_b4' for even better accuracy (19M params)
+    IMG_SIZE = 512      # ↓ từ 1024 xuống 512 cho nhẹ VRAM
+    BATCH_SIZE = 4      # ↓ từ 16 xuống 4 (4050 6GB thường chịu được 4)
+    NUM_WORKERS = 2     # giảm cho đỡ tốn RAM CPU
 
     # Training
-    BATCH_SIZE = 16  # RTX 5060 Ti can handle this comfortably
     EPOCHS = 100
-    NUM_WORKERS = 4  # Adjust based on CPU cores
 
     # Optimizer
     LR = 1e-3
     WEIGHT_DECAY = 1e-5
-    GRAD_CLIP = 1.0  # Gradient clipping
+    GRAD_CLIP = 1.0
 
     # Learning Rate Schedule
     WARMUP_EPOCHS = 5
     LR_MIN = 1e-6
 
     # Loss
-    LOSS_TYPE = 'wing'  # 'wing', 'adaptive_wing', 'smooth_l1', 'mse', 'combined'
+    LOSS_TYPE = 'wing'
     LOSS_PARAMS = {'omega': 10, 'epsilon': 2}
 
     # Early Stopping
     PATIENCE = 20
-    MIN_DELTA = 0.01  # Minimum improvement in MRE (mm)
+    MIN_DELTA = 0.01
 
-    # Checkpoints
+    # Checkpoints & Logs
     SAVE_DIR = './checkpoints_full'
-    SAVE_EVERY = 10  # Save checkpoint every N epochs
-    RESUME_FROM = None  # Path to checkpoint to resume from
+    LOG_DIR = './runs_full'
+    SAVE_EVERY = 10
 
     # Mixed Precision
-    USE_AMP = True  # Automatic Mixed Precision (FP16)
+    USE_AMP = True  # vẫn nên giữ FP16
 
-    # TensorBoard
-    LOG_DIR = './runs_full'
-
-    # Device
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 
 def get_warmup_cosine_scheduler(optimizer, warmup_epochs, total_epochs, lr_min, last_epoch=-1):
     """Learning rate scheduler with warmup and cosine annealing"""
