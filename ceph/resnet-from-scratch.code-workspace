@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../resnet-from-scratch"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../ceph-fe-demo"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "ceph-fe-demo"
+	}
+}

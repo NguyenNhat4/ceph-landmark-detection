@@ -71,7 +71,7 @@ def load_model():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Loading model on device: {device}")
 
-    model = LandmarkModel(num_landmarks=29, backbone='efficientnet_b3')
+    model = LandmarkModel(num_landmarks=29, backbone='resnet50')
 
     # Load checkpoint
     checkpoint_path = 'checkpoints_full/checkpoint_epoch_100.pth'

@@ -432,7 +432,7 @@ def main():
     parser.add_argument('--batch-size', type=int, default=16, help='Batch size')
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs')
     parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
-    parser.add_argument('--backbone', type=str, default='efficientnet_b3', help='Backbone model')
+    parser.add_argument('--backbone', type=str, default='resnet50', help='Backbone model (resnet18/resnet34/resnet50/resnet101)')
     parser.add_argument('--img-size', type=int, default=512, help='Image size')
     parser.add_argument('--resume', type=str, default=None, help='Resume from checkpoint')
     parser.add_argument('--no-amp', action='store_true', help='Disable mixed precision')
