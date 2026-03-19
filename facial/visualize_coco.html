@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COCO Landmarks Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .canvas-container {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #canvas {
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: crosshair;
+            max-width: 100%;
+            max-height: 600px;
+        }
+
+        .sidebar {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .info-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .landmark-list {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .landmark-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .landmark-item:last-child {
+            border-bottom: none;
+        }
+
+        .landmark-item:hover {
+            background: #f9f9f9;
+        }
+
+        .landmark-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .landmark-name {
+            flex: 1;
+            color: #333;
+        }
+
+        .landmark-coord {
+            font-size: 11px;
+            color: #999;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .status {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1976d2;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status.error {
+            background: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            border-color: #81c784;
+            color: #2e7d32;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend p {
+            margin-bottom: 8px;
+        }
+
+        .legend strong {
+            color: #333;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        .nav-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input[type="file"] {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 COCO Landmarks Visualization</h1>
+            <p>Load your COCO annotations JSON and view landmarks on images</p>
+        </div>
+
+        <div class="content">
+            <div class="canvas-container">
+                <div id="noData" class="no-data">
+                    <p>📁 Load a COCO JSON file to visualize landmarks</p>
+                </div>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+
+            <div class="sidebar">
+                <!-- File Upload -->
+                <div class="control-group">
+                    <label>📂 Select COCO JSON File</label>
+                    <input type="file" id="fileInput" accept=".json" />
+                </div>
+
+                <div class="status" id="status"></div>
+
+                <!-- Image Navigation -->
+                <div class="control-group" id="navControl" style="display: none;">
+                    <label>🖼️ Image</label>
+                    <div class="button-group">
+                        <button class="btn-secondary" id="prevBtn" onclick="previousImage()">← Previous</button>
+                        <button class="btn-secondary" id="nextBtn" onclick="nextImage()">Next →</button>
+                    </div>
+                    <div class="nav-info" id="navInfo"></div>
+                </div>
+
+                <!-- Image Select Dropdown -->
+                <div class="control-group" id="selectControl" style="display: none;">
+                    <label>Select Image</label>
+                    <select id="imageSelect" onchange="selectImage()"></select>
+                </div>
+
+                <!-- Settings -->
+                <div class="control-group" id="settingsControl" style="display: none;">
+                    <label>⚙️ Settings</label>
+                    <div style="font-size: 13px; color: #666;">
+                        <div style="margin-bottom: 10px;">
+                            <input type="checkbox" id="showNames" checked onchange="redraw()" />
+                            <label for="showNames" style="display: inline; font-weight: normal;">Show names</label>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <input type="checkbox" id="showBbox" checked onchange="redraw()" />
+                            <label for="showBbox" style="display: inline; font-weight: normal;">Show bounding box</label>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px;">Point Size</label>
+                            <input type="range" id="pointSize" min="3" max="15" value="8" onchange="redraw()" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Landmarks Info -->
+                <div id="landmarksInfo" style="display: none;">
+                    <label>🎯 Landmarks</label>
+                    <div class="landmark-list" id="landmarkList"></div>
+                </div>
+
+                <div class="legend" id="legendInfo" style="display: none;">
+                    <p><strong>Color Coding:</strong></p>
+                    <p>🔴 Red dots = detected keypoints</p>
+                    <p>📦 Blue box = bounding box</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cocoData = null;
+        let currentImageIndex = 0;
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const noData = document.getElementById('noData');
+
+        // Color palette for landmarks
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+            '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'
+        ];
+
+        // Show message
+        function showStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status show ${type}`;
+            setTimeout(() => status.classList.remove('show'), 5000);
+        }
+
+        // Load JSON file
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    cocoData = JSON.parse(event.target.result);
+                    
+                    // Validate COCO format
+                    if (!cocoData.images || !cocoData.annotations || !cocoData.categories) {
+                        throw new Error('Invalid COCO format. Missing required fields.');
+                    }
+
+                    showStatus(`✅ Loaded ${cocoData.images.length} images with ${cocoData.annotations.length} annotations`, 'success');
+                    
+                    currentImageIndex = 0;
+                    populateImageSelect();
+                    showControls();
+                    loadImage();
+                } catch (error) {
+                    showStatus(`❌ Error: ${error.message}`, 'error');
+                    cocoData = null;
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Populate image dropdown
+        function populateImageSelect() {
+            const select = document.getElementById('imageSelect');
+            select.innerHTML = '';
+            cocoData.images.forEach((img, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = `${idx + 1}. ${img.file_name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Show controls
+        function showControls() {
+            document.getElementById('navControl').style.display = 'block';
+            document.getElementById('selectControl').style.display = 'block';
+            document.getElementById('settingsControl').style.display = 'block';
+            document.getElementById('landmarksInfo').style.display = 'block';
+            document.getElementById('legendInfo').style.display = 'block';
+            noData.style.display = 'none';
+            canvas.style.display = 'block';
+        }
+
+        // Load and display image
+        function loadImage() {
+            const image = cocoData.images[currentImageIndex];
+            if (!image) return;
+
+            // Update navigation info
+            document.getElementById('navInfo').textContent = `${currentImageIndex + 1} / ${cocoData.images.length}`;
+            document.getElementById('imageSelect').value = currentImageIndex;
+
+            // Load image file
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // Draw annotations
+                drawAnnotations(image);
+            };
+
+            // Handle data URL if it's a base64 image, otherwise use relative path
+            img.src = image.file_name.startsWith('data:') ? image.file_name : `data/sample_train/${image.file_name}`;
+
+            // If image fails to load, try different paths
+            img.onerror = () => {
+                const paths = [
+                    `./data/sample_train/${image.file_name}`,
+                    `../data/sample_train/${image.file_name}`,
+                    `data/sample_train/${image.file_name}`,
+                    `../../../data/test/Cephalograms/${image.file_name}`
+                ];
+
+                let pathIndex = 0;
+                const tryNextPath = () => {
+                    if (pathIndex < paths.length) {
+                        const img2 = new Image();
+                        img2.onload = () => {
+                            canvas.width = img2.width;
+                            canvas.height = img2.height;
+                            ctx.drawImage(img2, 0, 0);
+                            drawAnnotations(image);
+                        };
+                        img2.onerror = () => {
+                            pathIndex++;
+                            tryNextPath();
+                        };
+                        img2.src = paths[pathIndex];
+                    } else {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#999';
+                        ctx.font = '14px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`Image not found: ${image.file_name}`, canvas.width / 2, canvas.height / 2 - 10);
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = '#666';
+                        ctx.fillText('Tried paths: data/sample_train/', canvas.width / 2, canvas.height / 2 + 20);
+                        drawAnnotations(image);
+                    }
+                };
+                tryNextPath();
+            };
+        }
+
+        // Draw annotations on canvas
+        function drawAnnotations(image) {
+            // Find annotations for this image
+            const annotations = cocoData.annotations.filter(a => a.image_id === image.id);
+
+            if (annotations.length === 0) {
+                showStatus('⚠️ No annotations for this image', 'info');
+                return;
+            }
+
+            const annotation = annotations[0];
+            const keypoints = annotation.keypoints;
+            const keypoint_names = cocoData.categories[0].keypoints;
+
+            // Draw bounding box
+            if (document.getElementById('showBbox').checked && annotation.bbox) {
+                const [x, y, w, h] = annotation.bbox;
+                ctx.strokeStyle = '#2196F3';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, w, h);
+            }
+
+            // Draw keypoints
+            const pointSize = parseFloat(document.getElementById('pointSize').value);
+            const showNames = document.getElementById('showNames').checked;
+            const landmarkList = [];
+
+            for (let i = 0; i < keypoint_names.length; i++) {
+                const x = keypoints[i * 3];
+                const y = keypoints[i * 3 + 1];
+                const v = keypoints[i * 3 + 2];
+
+                if (v > 0) {
+                    // Draw point
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.beginPath();
+                    ctx.arc(x, y, pointSize, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // Draw border
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    // Draw label
+                    if (showNames) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText(keypoint_names[i].substring(0, 10), x + pointSize + 5, y - pointSize);
+                    }
+
+                    landmarkList.push({
+                        name: keypoint_names[i],
+                        x: x.toFixed(1),
+                        y: y.toFixed(1),
+                        color: colors[i % colors.length]
+                    });
+                }
+            }
+
+            updateLandmarksList(landmarkList);
+        }
+
+        // Update landmarks list
+        function updateLandmarksList(landmarks) {
+            const list = document.getElementById('landmarkList');
+            list.innerHTML = landmarks.map(lm => `
+                <div class="landmark-item">
+                    <div class="landmark-color" style="background-color: ${lm.color}"></div>
+                    <div class="landmark-name">${lm.name}</div>
+                    <div class="landmark-coord">(${lm.x}, ${lm.y})</div>
+                </div>
+            `).join('');
+        }
+
+        // Navigation
+        function nextImage() {
+            if (currentImageIndex < cocoData.images.length - 1) {
+                currentImageIndex++;
+                loadImage();
+            }
+        }
+
+        function previousImage() {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                loadImage();
+            }
+        }
+
+        function selectImage() {
+            currentImageIndex = parseInt(document.getElementById('imageSelect').value);
+            loadImage();
+        }
+
+        function redraw() {
+            if (cocoData && cocoData.images[currentImageIndex]) {
+                const img = new Image();
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    drawAnnotations(cocoData.images[currentImageIndex]);
+                };
+                const image = cocoData.images[currentImageIndex];
+                img.src = image.file_name.startsWith('data:') 
+                    ? image.file_name 
+                    : `data/sample_train/${image.file_name}`;
+                img.onerror = () => {
+                    const paths = [
+                        `./data/sample_train/${image.file_name}`,
+                        `../data/sample_train/${image.file_name}`,
+                        `data/sample_train/${image.file_name}`
+                    ];
+                    let pathIndex = 0;
+                    const tryNextPath = () => {
+                        if (pathIndex < paths.length) {
+                            const img2 = new Image();
+                            img2.onload = () => {
+                                canvas.width = img2.width;
+                                canvas.height = img2.height;
+                                ctx.drawImage(img2, 0, 0);
+                                drawAnnotations(cocoData.images[currentImageIndex]);
+                            };
+                            img2.onerror = () => {
+                                pathIndex++;
+                                tryNextPath();
+                            };
+                            img2.src = paths[pathIndex];
+                        }
+                    };
+                    tryNextPath();
+                };
+            }
+        }
+
+        // Update button states
+        function updateButtonStates() {
+            document.getElementById('prevBtn').disabled = currentImageIndex === 0;
+            document.getElementById('nextBtn').disabled = currentImageIndex === cocoData.images.length - 1;
+        }
+
+        // Observer to update button states when image changes
+        const updateButtons = () => {
+            if (cocoData) updateButtonStates();
+        };
+    </script>
+</body>
+</html>
