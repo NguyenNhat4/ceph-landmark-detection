@@ -31,10 +31,6 @@ __pycache__/
 *.swo
 *~
 
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
-
 # OS
 .DS_Store
 Thumbs.db
