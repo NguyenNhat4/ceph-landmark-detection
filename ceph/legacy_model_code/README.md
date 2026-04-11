@@ -257,6 +257,11 @@ See [TRAINING_GUIDE.md](TRAINING_GUIDE.md) for comprehensive guide.
    ```bash
    python train_quick.py  # Modify DATA_DIR to './data'
    ```
+### Run api
+
+```bash
+uvicorn api:app --host 0.0.0.0 --port 8006 --reload
+```
 
 ### Training Parameters
 

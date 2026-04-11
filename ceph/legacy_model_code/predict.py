@@ -2,7 +2,7 @@ import torch
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from model import LandmarkModel
+from models import LandmarkModel
 import json
 import argparse
 
@@ -13,19 +13,44 @@ LANDMARK_NAMES = [
     "UIA", "UIT", "UMT", "LIA", "Li", "Ls", "N'", "Pog'", "Sn"
 ]
 
-def load_model(model_path, device='cuda'):
+def load_model(model_path, device='cuda', backbone='resnet50', hrnet_config=None):
     """Load trained model"""
-    model = LandmarkModel(num_landmarks=29, backbone='resnet50')
+    if backbone == 'hrnet':
+        from models.hrnet import get_hrnet_predict
+        if not hrnet_config:
+            hrnet_config = 'models/configs/hrnet.yaml'
+        model = get_hrnet_predict(hrnet_config)
+    else:
+        model = LandmarkModel(num_landmarks=29, backbone=backbone)
 
-    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    import sys
+    import os
+    hrnet_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../HRNet-Ceph-Landmark-Detection'))
+    if hrnet_dir not in sys.path:
+        sys.path.insert(0, hrnet_dir)
+
+    try:
+        checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+    finally:
+        if hrnet_dir in sys.path:
+            sys.path.remove(hrnet_dir)
+
+    import torch.nn as nn
+    if isinstance(checkpoint, nn.Module):
+        state_dict = checkpoint.state_dict()
+    else:
+        state_dict = checkpoint['model_state_dict'] if type(checkpoint) is dict and 'model_state_dict' in checkpoint else checkpoint
+        
+    model.load_state_dict(state_dict)
 
     model = model.to(device)
     model.eval()
 
     print(f"✓ Loaded model from {model_path}")
-    print(f"  Trained epoch: {checkpoint['epoch']}")
-    print(f"  Val MRE: {checkpoint['val_mre']:.2f}mm")
+    if 'epoch' in checkpoint:
+        print(f"  Trained epoch: {checkpoint['epoch']}")
+    if 'val_mre' in checkpoint:
+        print(f"  Val MRE: {checkpoint['val_mre']:.2f}mm")
 
     return model
 
@@ -186,6 +211,8 @@ def main():
     parser = argparse.ArgumentParser(description='Predict cephalometric landmarks')
     parser.add_argument('--image', type=str, required=True, help='Path to input image')
     parser.add_argument('--model', type=str, default='best_model.pth', help='Path to model checkpoint')
+    parser.add_argument('--backbone', type=str, default='resnet50', help='Backbone model (resnet50, hrnet, etc)')
+    parser.add_argument('--hrnet_config', type=str, default='models/configs/hrnet.yaml', help='Path to hrnet config file')
     parser.add_argument('--anno', type=str, default=None, help='Path to ground truth annotation (optional)')
     parser.add_argument('--output', type=str, default='prediction.png', help='Path to save visualization')
     parser.add_argument('--device', type=str, default='cuda', help='Device to use (cuda/cpu)')
@@ -198,7 +225,7 @@ def main():
     print(f"Using device: {device}")
 
     # Load model
-    model = load_model(args.model, device=device)
+    model = load_model(args.model, device=device, backbone=args.backbone, hrnet_config=args.hrnet_config)
 
     # Predict
     print(f"\nPredicting on: {args.image}")

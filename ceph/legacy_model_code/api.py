@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 import torch
 import cv2
 import numpy as np
-from model import LandmarkModel
+from models.resnet import LandmarkModel
 import io
 from typing import List
 import uvicorn
