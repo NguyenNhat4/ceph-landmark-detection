@@ -1,0 +1,1 @@
+watch -n 1 nvidia-smi : command to monitor your GPU 
