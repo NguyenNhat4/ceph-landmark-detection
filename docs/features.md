@@ -1,9 +1,3 @@
-Optimizing tool selection...For a graduation project, your features should strike a balance between **clinical utility** (what a dentist actually needs) and **engineering complexity** (what your professors want to see). 
-
-Since you are building a medical AI system (Dental/Orthodontics), you must include a **"Human-in-the-Loop" (HITL)** architecture. Medical AI should *assist*, not replace, the doctor.
-
-Here is a breakdown of the killer features you should implement for your system, categorized by their impact:
-
 ### 1. The "Human-in-the-Loop" Features (Crucial for Medical AI & MLOps)
 This is the most important feature set for an MLOps thesis. It proves you understand the lifecycle of data.
 
