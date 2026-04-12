@@ -10,10 +10,8 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
-# Add current workspace to path so we can import 'lib'
-sys.path.insert(0, os.path.abspath('.'))
 
-from lib.models.hrnet import HighResolutionNet
+from hrnet import HighResolutionNet
 
 app = FastAPI(title="HRNet Cephalometric Landmark Detection API")
 
