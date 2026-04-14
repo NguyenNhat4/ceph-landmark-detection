@@ -214,11 +214,24 @@ def inference(image):
     predicted_points = preds[0]
     confidence = confidence[0]
 
+    # Mapping to match the paper's symbols
+    PAPER_MAPPING = {
+        "Ls": "ls",
+        "Li": "li",
+        "Pog`": "Pg'",
+        "Go": "go",
+        "UIT": "I",
+        "LIT": "i"
+    }
+
     landmarks = []
     for i in range(len(predicted_points)):
-        symbol = LANDMARK_SYMBOLS[i] if i < len(LANDMARK_SYMBOLS) else f"L{i+1}"
+        original_symbol = LANDMARK_SYMBOLS[i] if i < len(LANDMARK_SYMBOLS) else f"L{i+1}"
+        symbol = PAPER_MAPPING.get(original_symbol, original_symbol)
+        
         landmarks.append({
             "symbol": symbol,
+            "original_symbol": original_symbol, # preserved for backward compatibility
             "value": {
                 "x": float(predicted_points[i][0]),
                 "y": float(predicted_points[i][1])
