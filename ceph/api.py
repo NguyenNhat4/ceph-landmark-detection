@@ -224,7 +224,7 @@ def inference(image):
                 "y": float(predicted_points[i][1])
             },
             "confidence": float(confidence[i])
-        })
+        })      
 
     return landmarks, int(original_w), int(original_h), None
 
@@ -250,4 +250,4 @@ async def predict(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
