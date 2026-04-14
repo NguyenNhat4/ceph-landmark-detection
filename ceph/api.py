@@ -224,20 +224,28 @@ def inference(image):
         "LIT": "i"
     }
 
+    # Only return these specific landmarks as per requirements
+    ALLOWED_LANDMARKS = {
+        "S", "N", "A", "B", "go", "Me", "Gn",
+        "I", "UIA", "i", "LIA",
+        "Pn", "Sn", "ls", "li", "Pg'", "Po", "Or"
+    }
+
     landmarks = []
     for i in range(len(predicted_points)):
         original_symbol = LANDMARK_SYMBOLS[i] if i < len(LANDMARK_SYMBOLS) else f"L{i+1}"
         symbol = PAPER_MAPPING.get(original_symbol, original_symbol)
         
-        landmarks.append({
-            "symbol": symbol,
-            "original_symbol": original_symbol, # preserved for backward compatibility
-            "value": {
-                "x": float(predicted_points[i][0]),
-                "y": float(predicted_points[i][1])
-            },
-            "confidence": float(confidence[i])
-        })      
+        if symbol in ALLOWED_LANDMARKS:
+            landmarks.append({
+                "symbol": symbol,
+                "original_symbol": original_symbol, # preserved for backward compatibility
+                "value": {
+                    "x": float(predicted_points[i][0]),
+                    "y": float(predicted_points[i][1])
+                },
+                "confidence": float(confidence[i])
+            })      
 
     return landmarks, int(original_w), int(original_h), None
 
