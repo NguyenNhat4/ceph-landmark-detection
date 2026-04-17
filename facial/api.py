@@ -223,7 +223,7 @@ async def startup_event():
         logger.error(f"Failed to load model on startup: {e}")
         raise
 
-@app.get("/health")
+@app.get("/api/health")
 async def health_check() -> Dict[str, Any]:
     """Health check endpoint."""
     return {
@@ -231,6 +231,27 @@ async def health_check() -> Dict[str, Any]:
         "device": str(config_obj.DEVICE),
         "num_landmarks": config_obj.NUM_KEYPOINTS,
         "model_loaded": model is not None
+    }
+
+@app.post("/api/setup")
+async def setup_endpoint() -> Dict[str, Any]:
+    """Setup/configuration endpoint - returns model info and API metadata"""
+    return {
+        "model_version": "HRNet-W18 Facial",
+        "status": "ready" if model is not None else "initializing",
+        "num_landmarks": config_obj.NUM_KEYPOINTS,
+        "landmark_labels": LANDMARK_LABELS,
+        "input_size": config_obj.IMAGE_SIZE,
+        "heatmap_size": config_obj.HEATMAP_SIZE,
+        "device": str(config_obj.DEVICE),
+        "service": "Facial Landmark Detection API v1.0",
+        "endpoints": {
+            "health": "/api/health",
+            "predict": "/api/predict",
+            "setup": "/api/setup",
+            "landmarks": "/api/landmarks",
+            "docs": "/docs"
+        }
     }
 
 @app.post("/predict", response_model=PredictionResponse)

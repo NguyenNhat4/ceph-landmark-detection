@@ -249,6 +249,35 @@ def inference(image):
 
     return landmarks, int(original_w), int(original_h), None
 
+@app.get("/api/health")
+async def health():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "model_loaded": MODEL_LOADED,
+        "service": "Cephalometric Landmark Detection API"
+    }
+
+@app.post("/api/setup")
+async def setup():
+    """Setup/configuration endpoint - returns model info and API metadata"""
+    return {
+        "model_version": "HRNet-W32 (ImageNet Pretrained)",
+        "status": "ready" if MODEL_LOADED else "initializing",
+        "num_landmarks": NUM_JOINTS,
+        "landmark_symbols": LANDMARK_SYMBOLS,
+        "input_size": IMAGE_SIZE,
+        "heatmap_size": HEATMAP_SIZE,
+        "device": "cuda" if torch.cuda.is_available() else "cpu",
+        "service": "Cephalometric Landmark Detection API v1.0",
+        "endpoints": {
+            "health": "/api/health",
+            "predict": "/api/predict",
+            "setup": "/api/setup",
+            "docs": "/docs"
+        }
+    }
+
 @app.post("/api/predict")
 async def predict(file: UploadFile = File(...)):
     try:
