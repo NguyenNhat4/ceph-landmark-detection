@@ -28,16 +28,16 @@ MODEL_LOADED = False
 model = None
 
 model_path = 'output/ceph_hrnet_notebook/best_model.pth'
-NUM_JOINTS = 29
+NUM_JOINTS = 30
 IMAGE_SIZE = (512, 512)
 HEATMAP_SIZE = (128, 128)
 USE_AMP = True
 
-# Landmark symbol mapping (index to symbol)
+# Landmark symbol mapping (index to symbol) - must match training data order
 LANDMARK_SYMBOLS = [
     "A", "ANS", "B", "Me", "N", "Or", "Pog", "PNS", "Pn", "R",
     "S", "Ar", "Co", "Gn", "Go", "Po", "LPM", "LIT", "LMT", "UPM",
-    "UIA", "UIT", "UMT", "LIA", "Li", "Ls", "N`", "Pog`", "NA"
+    "UIA", "UIT", "UMT", "LIA", "Li", "Ls", "N`", "Pog`", "Sn"
 ]
 
 HRNET_W32_EXTRA = {
