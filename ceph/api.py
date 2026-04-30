@@ -28,7 +28,7 @@ MODEL_LOADED = False
 model = None
 
 model_path = 'output/ceph_hrnet_notebook/best_model.pth'
-NUM_JOINTS = 30
+NUM_JOINTS = 29 
 IMAGE_SIZE = (512, 512)
 HEATMAP_SIZE = (128, 128)
 USE_AMP = True
@@ -164,14 +164,7 @@ def load_model():
         for k, v in state_dict.items()
     }
 
-    # Filter out keys with mismatched shapes (e.g., from 29 joints -> 30 joints)
-    model_state_dict = model.state_dict()
-    filtered_state_dict = {}
-    for k, v in clean_state_dict.items():
-        if k in model_state_dict and model_state_dict[k].shape == v.shape:
-            filtered_state_dict[k] = v
-
-    missing_keys, unexpected_keys = model.load_state_dict(filtered_state_dict, strict=False)
+    missing_keys, unexpected_keys = model.load_state_dict(clean_state_dict, strict=False)
     if missing_keys or unexpected_keys:
         print(f"Checkpoint load report | missing: {len(missing_keys)} | unexpected: {len(unexpected_keys)}")
 
