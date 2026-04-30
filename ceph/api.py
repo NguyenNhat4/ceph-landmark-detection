@@ -35,10 +35,27 @@ USE_AMP = True
 
 # Landmark symbol mapping (index to symbol) - must match training data order
 LANDMARK_SYMBOLS = [
-    "A", "ANS", "B", "Me", "N", "Or", "Pog", "PNS", "Pn", "R",
+    "A", "ANS", "BGn", "Me", "N", "Or", "Pog", "PNS", "Pn", "R",
     "S", "Ar", "Co", "Gn", "Go", "Po", "LPM", "LIT", "LMT", "UPM",
     "UIA", "UIT", "UMT", "LIA", "Li", "Ls", "N`", "Pog`", "Sn"
 ]
+
+# Mapping to match the paper's symbols
+PAPER_MAPPING = {
+    "Ls": "ls",
+    "Li": "li",
+    "Pog`": "Pg'",
+    "Pog": "Pg",
+    "Go": "go",
+    "UIT": "I",
+    "LIT": "i"
+}
+
+ALLOWED_LANDMARKS = {
+    "S","ANS", "B", "Me", "N", "A", "B", "go", "Me",
+    "I", "UIA", "i", "LIA",
+    "Pn", "Sn", "ls", "li", "Pg'", "Po", "Or", "N`","Pg"
+}
 
 HRNET_W32_EXTRA = {
     "FINAL_CONV_KERNEL": 1,
@@ -221,22 +238,8 @@ def inference(image):
     predicted_points = preds[0]
     confidence = confidence[0]
 
-    # Mapping to match the paper's symbols
-    PAPER_MAPPING = {
-        "Ls": "ls",
-        "Li": "li",
-        "Pog`": "Pg'",
-        "Go": "go",
-        "UIT": "I",
-        "LIT": "i"
-    }
-
+  
     # Only return these specific landmarks as per requirements
-    ALLOWED_LANDMARKS = {
-        "S", "N", "A", "B", "go", "Me", "Gn",
-        "I", "UIA", "i", "LIA",
-        "Pn", "Sn", "ls", "li", "Pg'", "Po", "Or"
-    }
 
     landmarks = []
     for i in range(len(predicted_points)):
