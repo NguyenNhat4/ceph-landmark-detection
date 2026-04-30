@@ -35,7 +35,7 @@ USE_AMP = True
 
 # Landmark symbol mapping (index to symbol) - must match training data order
 LANDMARK_SYMBOLS = [
-    "A", "ANS", "BGn", "Me", "N", "Or", "Pog", "PNS", "Pn", "R",
+    "A", "ANS", "B", "Me", "N", "Or", "Pog", "PNS", "Pn", "R",
     "S", "Ar", "Co", "Gn", "Go", "Po", "LPM", "LIT", "LMT", "UPM",
     "UIA", "UIT", "UMT", "LIA", "Li", "Ls", "N`", "Pog`", "Sn"
 ]
