@@ -199,7 +199,7 @@ class PretrainedUNetHeatmap(nn.Module):
             in_channels=in_channels,
             num_classes=num_joints,
         )
-
+        print(f"Using pretrained UNet backbone: {backbone}")
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         logits = self.model(x)
         return F.interpolate(

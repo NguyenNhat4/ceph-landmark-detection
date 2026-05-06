@@ -27,7 +27,7 @@ app.add_middleware(
 MODEL_LOADED = False
 model = None
 
-model_path = 'output/ceph_hrnet_notebook/best_model.pth'
+model_path = 'models/best_model.pth'
 NUM_JOINTS = 29 
 IMAGE_SIZE = (512, 512)
 HEATMAP_SIZE = (128, 128)
