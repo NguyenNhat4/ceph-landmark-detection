@@ -45,7 +45,6 @@ class AnalysisService:
             image_id=image_id,
             landmarks=landmarks,
             confidence_score=confidence_score,
-            notes=notes,
             analysis_date=datetime.utcnow()
         )
         db.add(db_analysis)
@@ -69,4 +68,3 @@ class AnalysisService:
     def get_image_analyses(db: Session, image_id: int) -> List[Analysis]:
         """Get all analyses for an image"""
         return db.query(Analysis).filter(Analysis.image_id == image_id).all()
-

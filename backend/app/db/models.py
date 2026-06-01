@@ -18,6 +18,7 @@ class Patient(Base):
     # Relationships
     images = relationship("Image", back_populates="patient", cascade="all, delete-orphan")
     analyses = relationship("Analysis", back_populates="patient", cascade="all, delete-orphan")
+    notes = relationship("Note", back_populates="patient", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Patient(id={self.id}, fullname={self.fullname}, phone={self.phone})>"
@@ -48,9 +49,22 @@ class Analysis(Base):
     image_id = Column(Integer, ForeignKey("images.id"), nullable=False, index=True)
     landmarks = Column(JSON, nullable=True)  # Store landmarks as JSON
     confidence_score = Column(Float, nullable=True)
-    notes = Column(String(1000), nullable=True)
     analysis_date = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
     patient = relationship("Patient", back_populates="analyses")
     image = relationship("Image", back_populates="analyses")
+
+
+class Note(Base):
+    """Note model for storing notes, to be used for semantic search"""
+    __tablename__ = "notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    patient = relationship("Patient", back_populates="notes")

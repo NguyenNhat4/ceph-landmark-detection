@@ -23,7 +23,6 @@ async def save_analysis(
     image_file: UploadFile = File(...),
     landmarks: Optional[str] = Form(None),
     confidence_score: Optional[float] = Form(None),
-    notes: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -34,7 +33,6 @@ async def save_analysis(
         image_file: Uploaded X-ray image
         landmarks: Detected landmarks (JSON string)
         confidence_score: Overall confidence score
-        notes: Additional notes about the analysis
     """
     try:
         # Verify patient exists
@@ -61,14 +59,12 @@ async def save_analysis(
             except json.JSONDecodeError:
                 logger.warning("Invalid landmarks JSON format")
 
-        # Create analysis record
         analysis = AnalysisService.create_analysis(
             db=db,
             patient_id=patient_id,
             image_id=db_image.id,
             landmarks=landmarks_data,
-            confidence_score=confidence_score,
-            notes=notes
+            confidence_score=confidence_score
         )
 
         if not analysis:

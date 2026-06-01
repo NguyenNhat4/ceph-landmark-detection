@@ -35,12 +35,27 @@ class PatientService:
             db.add(db_patient)
             db.commit()
             db.refresh(db_patient)
+            
+            if patient_data.note:
+                PatientService.create_patient_note(db, db_patient.id, patient_data.note)
+                db.refresh(db_patient)
+                
             return db_patient
         except IntegrityError as e:
             db.rollback()
             if "phone" in str(e):
                 raise ValueError(f"Phone number {patient_data.phone} already exists")
             raise
+
+    @staticmethod
+    def create_patient_note(db: Session, patient_id: int, content: str) -> 'Note':
+        """Create a new note for a patient"""
+        from ..db.models import Note
+        db_note = Note(patient_id=patient_id, content=content)
+        db.add(db_note)
+        db.commit()
+        db.refresh(db_note)
+        return db_note
 
     @staticmethod
     def get_patient(db: Session, patient_id: int) -> Optional[Patient]:
@@ -65,10 +80,16 @@ class PatientService:
             return None
 
         update_data = patient_data.dict(exclude_unset=True)
+        note_content = update_data.pop("note", None)
+        
         for field, value in update_data.items():
             setattr(db_patient, field, value)
         
         db_patient.updated_at = datetime.utcnow()
+        
+        if note_content:
+            PatientService.create_patient_note(db, patient_id, note_content)
+            
         db.commit()
         db.refresh(db_patient)
         return db_patient

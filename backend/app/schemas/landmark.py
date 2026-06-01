@@ -13,7 +13,7 @@ class PatientBase(BaseModel):
 
 class PatientCreate(PatientBase):
     """Schema for creating a new patient"""
-    pass
+    note: Optional[str] = Field(None, max_length=1000, description="Optional initial note for the patient")
 
 
 class PatientUpdate(BaseModel):
@@ -21,13 +21,25 @@ class PatientUpdate(BaseModel):
     fullname: Optional[str] = Field(None, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
     consultation_date: Optional[datetime] = None
+    note: Optional[str] = Field(None, max_length=1000, description="Add a new note for the patient")
 
+
+class NoteResponse(BaseModel):
+    """Schema for note response"""
+    id: int
+    content: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class PatientResponse(PatientBase):
     """Schema for patient response"""
     id: int
     created_at: datetime
     updated_at: datetime
+    notes: List[NoteResponse] = []
 
     class Config:
         from_attributes = True
@@ -56,7 +68,6 @@ class AnalysisBase(BaseModel):
     """Base analysis schema"""
     landmarks: Optional[List[Landmark]] = None
     confidence_score: Optional[float] = Field(None, ge=0, le=1)
-    notes: Optional[str] = Field(None, max_length=1000)
 
 
 class AnalysisCreate(AnalysisBase):
