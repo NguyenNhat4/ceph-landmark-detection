@@ -3,6 +3,7 @@
 # Licensed under the MIT License.
 # Create by Bin Xiao (Bin.Xiao@microsoft.com)
 # Modified by Tianheng Cheng(tianhengcheng@gmail.com), Yang Zhao
+# Adapted for backend inference by AI Assistant
 # ------------------------------------------------------------------------------
 
 from __future__ import absolute_import
@@ -191,7 +192,6 @@ class HighResolutionModule(nn.Module):
                                   0,
                                   bias=False),
                         BatchNorm2d(num_inchannels[i], momentum=BN_MOMENTUM)))
-                    # nn.Upsample(scale_factor=2**(j-i), mode='nearest')))
                 elif j == i:
                     fuse_layer.append(None)
                 else:
@@ -449,9 +449,7 @@ class HighResolutionNet(nn.Module):
         logger.info('=> init weights from normal distribution')
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                # nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
                 nn.init.normal_(m.weight, std=0.001)
-                # nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -469,10 +467,7 @@ class HighResolutionNet(nn.Module):
 
 
 def get_face_alignment_net(config, **kwargs):
-
     model = HighResolutionNet(config, **kwargs)
     pretrained = config.MODEL.PRETRAINED if config.MODEL.INIT_WEIGHTS else ''
     model.init_weights(pretrained=pretrained)
-
     return model
-
