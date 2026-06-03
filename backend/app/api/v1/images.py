@@ -1,5 +1,7 @@
 """Image management API endpoints"""
+import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -11,6 +13,21 @@ from ...schemas.landmark import ImageResponse
 router = APIRouter(prefix="/api/v1/images", tags=["images"])
 image_service = ImageService()
 
+@router.get("/{image_id}/file", response_class=FileResponse)
+async def get_image_file(
+    image_id: int,
+    db: Session = Depends(get_db)
+):
+    """Serve the actual image file bytes"""
+    image = image_service.get_image(db, image_id)
+    if not image:
+        raise HTTPException(status_code=404, detail=f"Image {image_id} not found")
+        
+    file_path = image_service.storage.get_image_path(image.file_path)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Image file missing on disk")
+        
+    return FileResponse(path=file_path, filename=image.filename)
 
 @router.post("/upload", response_model=ImageResponse, status_code=201)
 async def upload_image(
@@ -32,6 +49,11 @@ async def upload_image(
         patient = PatientService.get_patient(db, patient_id)
         if not patient:
             raise HTTPException(status_code=404, detail=f"Patient {patient_id} not found")
+
+        # Check if image of this type already exists
+        existing_images = image_service.get_patient_images_by_type(db, patient_id, image_type)
+        if existing_images:
+            raise HTTPException(status_code=409, detail=f"Image of type '{image_type}' already exists for patient {patient_id}")
 
         # Create image record
         db_image = image_service.create_image(

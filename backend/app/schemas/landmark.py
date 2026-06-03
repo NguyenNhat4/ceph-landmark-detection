@@ -95,6 +95,7 @@ class ImageResponse(BaseModel):
     filename: str
     image_type: Optional[str]
     upload_date: datetime
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

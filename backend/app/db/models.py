@@ -39,6 +39,11 @@ class Image(Base):
     patient = relationship("Patient", back_populates="images")
     analyses = relationship("Analysis", back_populates="image", cascade="all, delete-orphan")
 
+    @property
+    def image_url(self) -> str:
+        """Returns the relative URL to access the image file"""
+        return f"/api/v1/images/{self.id}/file"
+
 
 class Analysis(Base):
     """Analysis model for storing landmark detection results"""
