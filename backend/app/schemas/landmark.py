@@ -99,3 +99,9 @@ class ImageResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PatientImagesResponse(BaseModel):
+    """Schema for specific patient images (xray, frontal, profile)"""
+    xray: Optional[ImageResponse] = None
+    frontal: Optional[ImageResponse] = None
+    profile: Optional[ImageResponse] = None

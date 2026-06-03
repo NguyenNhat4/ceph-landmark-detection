@@ -5,7 +5,7 @@ from typing import List
 
 from ...db.database import get_db
 from ...services.patient import PatientService
-from ...schemas.landmark import PatientCreate, PatientUpdate, PatientResponse, ImageResponse
+from ...schemas.landmark import PatientCreate, PatientUpdate, PatientResponse, ImageResponse, PatientImagesResponse
 from ...db.models import Patient
 
 
@@ -81,18 +81,28 @@ async def delete_patient(
         raise HTTPException(status_code=404, detail=f"Patient {patient_id} not found")
 
 
-@router.get("/{patient_id}/images", response_model=List[ImageResponse])
+@router.get("/{patient_id}/images", response_model=PatientImagesResponse)
 async def get_patient_images(
     patient_id: int,
     db: Session = Depends(get_db)
 ):
-    """Get all images for a patient"""
+    """Get all images for a patient categorized by type (xray, frontal, profile)"""
     patient = PatientService.get_patient(db, patient_id)
     if not patient:
         raise HTTPException(status_code=404, detail=f"Patient {patient_id} not found")
     
     images = PatientService.get_patient_images(db, patient_id)
-    return images
+    
+    response = PatientImagesResponse()
+    for img in images:
+        if img.image_type == "xray" and response.xray is None:
+            response.xray = img
+        elif img.image_type == "frontal" and response.frontal is None:
+            response.frontal = img
+        elif img.image_type == "profile" and response.profile is None:
+            response.profile = img
+            
+    return response
 
 
 @router.get("/search", response_model=List[PatientResponse])
