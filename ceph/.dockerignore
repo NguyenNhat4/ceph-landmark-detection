@@ -1,0 +1,69 @@
+# ==============================================================================
+# Docker Ignore Configuration for Ceph Landmark Detection App
+# ==============================================================================
+
+# Version Control
+.git
+.gitignore
+.github
+
+# Virtual Environments & Packages
+venv/
+env/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python Caching & Compilation
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Machine Learning Assets & Datasets
+# Prevents sending huge datasets or model weights to the build context
+data/
+models/
+!models/ceph_hrnet_notebook/best_model.pth
+legacy_model_code/
+output/
+report_figures/
+visualization/
+*.pth
+*.pt
+*.onnx
+
+# Training Scripts & Notebooks
+# These are for development/training, not needed by the FastAPI container
+ceph_hrnet_training_notebook.ipynb
+train_unet_landmarks.py
+visualize_*.py
+visualyze.py
+hrnet.py
+model_factory.py
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+.project
+.pydevproject
+.settings/
+*.swp
+*.swo
+*~
+.gemini/
+
+# System / OS Metadata
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.nosexy
+nosetests.xml
+coverage.xml
+*.cover
