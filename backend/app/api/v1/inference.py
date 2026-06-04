@@ -1,6 +1,6 @@
 import logging
 import torch
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
 
 from ...ml.landmark_detector import (
@@ -43,24 +43,61 @@ async def setup():
     }
 
 
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+import os
+from ...db.database import get_db
+from ...services.image import ImageService
+from ...services.analysis import AnalysisService
+
+image_service = ImageService()
+
+class PredictRequest(BaseModel):
+    image_id: int
+    image_type: str
+
 @router.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    request: PredictRequest,
+    db: Session = Depends(get_db)
+):
     """
-    API /predict - Predict landmarks from uploaded image
+    API /predict - Predict landmarks from uploaded image and save analysis
     
     Args:
-        file: Image file (JPG, PNG, etc.)
+        request: PredictRequest with image_id and image_type
         
     Returns:
         Landmarks with coordinates and confidence scores
     """
     try:
-        image_bytes = await file.read()
+        if request.image_type != "xray":
+            return JSONResponse(status_code=400, content={"error": "Prediction is currently only supported for xray images"})
+
+        image_record = image_service.get_image(db, request.image_id)
+        if not image_record:
+            return JSONResponse(status_code=404, content={"error": "Image not found"})
+
+        file_path = image_service.storage.get_image_path(image_record.file_path)
+        if not os.path.exists(file_path):
+            return JSONResponse(status_code=404, content={"error": "Image file not found on disk"})
+
+        with open(file_path, "rb") as f:
+            image_bytes = f.read()
+
         image = _decode_image(image_bytes)
 
         landmarks, width, height, roi_bbox = predict_landmarks(image)
 
-        # Format response to match frontend expectations
+        # Save analysis
+        AnalysisService.create_analysis(
+            db=db,
+            patient_id=image_record.patient_id,
+            image_id=request.image_id,
+            landmarks=landmarks,
+            confidence_score=None
+        )
+
         response = {
             "landmarks": landmarks
         }
