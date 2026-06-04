@@ -9,8 +9,8 @@ from ...db.database import get_db
 from ...services.patient import PatientService
 from ...services.analysis import AnalysisService
 from ...services.image import ImageService
-from ...schemas.landmark import AnalysisResponse
-from ...db.models import Analysis
+from ...schemas.landmark import AnalysisResponse, AnalysisCreate
+from ...db.models import Analysis, Image
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/analysis", tags=["analysis"])
@@ -19,52 +19,37 @@ image_service = ImageService()
 
 @router.post("/save", response_model=AnalysisResponse, status_code=201)
 async def save_analysis(
-    patient_id: int = Form(...),
-    image_file: UploadFile = File(...),
-    landmarks: Optional[str] = Form(None),
-    confidence_score: Optional[float] = Form(None),
+    analysis_data: AnalysisCreate,
     db: Session = Depends(get_db)
 ):
     """
     Save analysis results for a patient
     
     Args:
-        patient_id: ID of the patient
-        image_file: Uploaded X-ray image
-        landmarks: Detected landmarks (JSON string)
-        confidence_score: Overall confidence score
+        analysis_data: Analysis creation schema (JSON)
     """
     try:
         # Verify patient exists
-        patient = PatientService.get_patient(db, patient_id)
+        patient = PatientService.get_patient(db, analysis_data.patient_id)
         if not patient:
-            raise HTTPException(status_code=404, detail=f"Patient {patient_id} not found")
+            raise HTTPException(status_code=404, detail=f"Patient {analysis_data.patient_id} not found")
 
-        # Create image record using ImageService
-        db_image = image_service.create_image(
-            db=db,
-            patient_id=patient_id,
-            file=image_file,
-            image_type="xray"
-        )
-        
-        if not db_image:
-            raise HTTPException(status_code=400, detail="Failed to create image record")
+        # Verify image exists
+        image = db.query(Image).filter(Image.id == analysis_data.image_id).first()
+        if not image:
+            raise HTTPException(status_code=404, detail=f"Image {analysis_data.image_id} not found")
 
-        # Parse landmarks if provided
+        # Convert landmarks to List[dict] if provided
         landmarks_data = None
-        if landmarks:
-            try:
-                landmarks_data = json.loads(landmarks)
-            except json.JSONDecodeError:
-                logger.warning("Invalid landmarks JSON format")
+        if analysis_data.landmarks:
+            landmarks_data = [lm.dict() for lm in analysis_data.landmarks]
 
         analysis = AnalysisService.create_analysis(
             db=db,
-            patient_id=patient_id,
-            image_id=db_image.id,
+            patient_id=analysis_data.patient_id,
+            image_id=analysis_data.image_id,
             landmarks=landmarks_data,
-            confidence_score=confidence_score
+            confidence_score=analysis_data.confidence_score
         )
 
         if not analysis:
