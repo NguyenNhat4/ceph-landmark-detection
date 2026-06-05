@@ -17,7 +17,8 @@ class AnalysisService:
         image_id: int,
         landmarks: Optional[List[dict]] = None,
         confidence_score: Optional[float] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        status: Optional[str] = None
     ) -> Optional[Analysis]:
         """
         Create a new analysis record after landmark detection
@@ -45,9 +46,35 @@ class AnalysisService:
             image_id=image_id,
             landmarks=landmarks,
             confidence_score=confidence_score,
+            status=status,
             analysis_date=datetime.utcnow()
         )
         db.add(db_analysis)
+        db.commit()
+        db.refresh(db_analysis)
+        return db_analysis
+
+    @staticmethod
+    def update_analysis(
+        db: Session,
+        analysis_id: int,
+        landmarks: Optional[List[dict]] = None,
+        confidence_score: Optional[float] = None,
+        status: Optional[str] = None
+    ) -> Optional[Analysis]:
+        """Update an existing analysis record"""
+        db_analysis = db.query(Analysis).filter(Analysis.id == analysis_id).first()
+        if not db_analysis:
+            return None
+        
+        if landmarks is not None:
+            db_analysis.landmarks = landmarks
+        if confidence_score is not None:
+            db_analysis.confidence_score = confidence_score
+        if status is not None:
+            db_analysis.status = status
+            
+        db_analysis.analysis_date = datetime.utcnow()
         db.commit()
         db.refresh(db_analysis)
         return db_analysis

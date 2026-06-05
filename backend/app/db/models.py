@@ -54,6 +54,7 @@ class Analysis(Base):
     image_id = Column(Integer, ForeignKey("images.id"), nullable=False, index=True)
     landmarks = Column(JSON, nullable=True)  # Store landmarks as JSON
     confidence_score = Column(Float, nullable=True)
+    status = Column(String(50), nullable=True) # e.g., "retrain"
     analysis_date = Column(DateTime, default=datetime.utcnow)
     
     # Relationships

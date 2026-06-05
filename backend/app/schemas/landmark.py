@@ -68,6 +68,7 @@ class AnalysisBase(BaseModel):
     """Base analysis schema"""
     landmarks: Optional[List[Landmark]] = None
     confidence_score: Optional[float] = Field(None, ge=0, le=1)
+    status: Optional[str] = None
 
 
 class AnalysisCreate(AnalysisBase):

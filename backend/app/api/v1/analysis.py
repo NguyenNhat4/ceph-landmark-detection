@@ -49,7 +49,8 @@ async def save_analysis(
             patient_id=analysis_data.patient_id,
             image_id=analysis_data.image_id,
             landmarks=landmarks_data,
-            confidence_score=analysis_data.confidence_score
+            confidence_score=analysis_data.confidence_score,
+            status=analysis_data.status
         )
 
         if not analysis:
@@ -61,6 +62,43 @@ async def save_analysis(
         raise
     except Exception as e:
         logger.error(f"Error saving analysis: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{analysis_id}", response_model=AnalysisResponse)
+async def update_analysis(
+    analysis_id: int,
+    analysis_data: AnalysisCreate,
+    db: Session = Depends(get_db)
+):
+    """Update analysis results"""
+    try:
+        # Verify analysis exists
+        analysis = AnalysisService.get_analysis(db, analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail=f"Analysis {analysis_id} not found")
+
+        # Convert landmarks to List[dict] if provided
+        landmarks_data = None
+        if analysis_data.landmarks:
+            landmarks_data = [lm.dict() for lm in analysis_data.landmarks]
+
+        updated_analysis = AnalysisService.update_analysis(
+            db=db,
+            analysis_id=analysis_id,
+            landmarks=landmarks_data,
+            confidence_score=analysis_data.confidence_score,
+            status=analysis_data.status
+        )
+
+        if not updated_analysis:
+            raise HTTPException(status_code=400, detail="Failed to update analysis")
+
+        return updated_analysis
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating analysis: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

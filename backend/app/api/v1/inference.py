@@ -89,15 +89,6 @@ async def predict(
 
         landmarks, width, height, roi_bbox = predict_landmarks(image)
 
-        # Save analysis
-        AnalysisService.create_analysis(
-            db=db,
-            patient_id=image_record.patient_id,
-            image_id=request.image_id,
-            landmarks=landmarks,
-            confidence_score=None
-        )
-
         response = {
             "landmarks": landmarks
         }
