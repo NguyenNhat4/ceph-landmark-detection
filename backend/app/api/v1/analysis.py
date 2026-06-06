@@ -126,3 +126,16 @@ async def get_patient_analyses(
     
     analyses = PatientService.get_patient_analyses(db, patient_id)
     return analyses
+
+@router.delete("/image/{image_id}", status_code=204)
+async def delete_image_analyses(
+    image_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete all analyses for an image"""
+    image = db.query(Image).filter(Image.id == image_id).first()
+    if not image:
+        raise HTTPException(status_code=404, detail=f"Image {image_id} not found")
+        
+    AnalysisService.delete_image_analyses(db, image_id)
+    return None

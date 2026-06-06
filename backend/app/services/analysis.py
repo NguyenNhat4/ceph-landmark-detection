@@ -95,3 +95,15 @@ class AnalysisService:
     def get_image_analyses(db: Session, image_id: int) -> List[Analysis]:
         """Get all analyses for an image"""
         return db.query(Analysis).filter(Analysis.image_id == image_id).all()
+
+    @staticmethod
+    def delete_image_analyses(db: Session, image_id: int) -> bool:
+        """Delete all analyses associated with an image"""
+        analyses = db.query(Analysis).filter(Analysis.image_id == image_id).all()
+        if not analyses:
+            return False
+        
+        for analysis in analyses:
+            db.delete(analysis)
+        db.commit()
+        return True
