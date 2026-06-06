@@ -13,7 +13,7 @@ class StorageService:
     
     def __init__(self):
         # Create storage directory if it doesn't exist
-        self.storage_dir = os.getenv("STORAGE_DIR", "/tmp/cephalometric_storage")
+        self.storage_dir = os.getenv("STORAGE_DIR", "/home/nhatnm/code/myprojects/ceph-landmark-detection/backend/storage")
         Path(self.storage_dir).mkdir(parents=True, exist_ok=True)
         self.images_dir = os.path.join(self.storage_dir, "images")
         Path(self.images_dir).mkdir(parents=True, exist_ok=True)
