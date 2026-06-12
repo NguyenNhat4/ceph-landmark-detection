@@ -8,6 +8,8 @@ class PatientBase(BaseModel):
     """Base patient schema"""
     fullname: str = Field(..., min_length=1, max_length=255, description="Patient full name")
     phone: Optional[str] = Field(None, max_length=20, description="Patient phone number")
+    date_of_birth: Optional[datetime] = Field(None, description="Patient date of birth")
+    chief_complaint: Optional[str] = Field(None, description="Patient chief complaint")
     consultation_date: datetime = Field(..., description="Consultation date")
 
 
@@ -20,6 +22,8 @@ class PatientUpdate(BaseModel):
     """Schema for updating patient information"""
     fullname: Optional[str] = Field(None, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
+    date_of_birth: Optional[datetime] = None
+    chief_complaint: Optional[str] = None
     consultation_date: Optional[datetime] = None
     note: Optional[str] = Field(None, max_length=1000, description="Add a new note for the patient")
 

@@ -10,8 +10,10 @@ class Patient(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     fullname = Column(String(255), nullable=False, index=True)
+    date_of_birth = Column(DateTime, nullable=True)
     phone = Column(String(20), nullable=True, unique=True, index=True)
     consultation_date = Column(DateTime, nullable=False, index=True)
+    chief_complaint = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
